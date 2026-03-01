@@ -1,0 +1,80 @@
+version: '3.8'
+
+networks:
+  backend-net:
+    driver: bridge
+  gateway-net:
+    driver: bridge
+
+services:
+
+  car-service:
+    build:
+      context: ./car-service
+    container_name: car-service
+    networks:
+      - backend-net
+    environment:
+      - PORT=3001
+      - SERVICE_NAME=car-service
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  customer-service:
+    build:
+      context: ./customer-service
+    container_name: customer-service
+    networks:
+      - backend-net
+    environment:
+      - PORT=3002
+      - SERVICE_NAME=car-service
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  rental-service:
+    build:
+      context: ./rental-service
+    container_name: rental-service
+    networks:
+      - backend-net
+    environment:
+      - PORT=3003
+      - SERVICE_NAME=car-service
+      - CAR_SERVICE_URL=http://car-service:3001
+      - CUSTOMER_SERVICE_URL=http://customer-service:3002
+    depends_on:
+      car-service:
+        condition: service_healthy
+      customer-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  api-gateway:
+    image: nginx:alpine
+    container_name: api-gateway
+    networks:
+      - backend-net
+      - gateway-net
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - car-service
+      - customer-service
+      - rental-service
+    restart: unless-stopped
