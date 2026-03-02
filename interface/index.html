@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rental Car System</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #E3DBBB;
+            color: #333;
+        }
+
+        header {
+            background-color: #AEB784;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        button {
+            background-color: #AEB784;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px 0;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        .section {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    Rental Car System Interface
+</header>
+
+<div class="container">
+
+    <div class="section">
+        <h3>List Cars</h3>
+        <button onclick="listCars()">Load Cars</button>
+        <pre id="carsResult"></pre>
+    </div>
+
+    <div class="section">
+        <h3>List Customers</h3>
+        <button onclick="listCustomers()">Load Customers</button>
+        <pre id="customersResult"></pre>
+    </div>
+
+    <div class="section">
+        <h3>Create Rental</h3>
+        <input type="number" id="carId" placeholder="Car ID">
+        <input type="number" id="customerId" placeholder="Customer ID">
+        <input type="number" id="rentalDays" placeholder="Rental Days">
+        <button onclick="createRental()">Create Rental</button>
+        <pre id="rentalResult"></pre>
+    </div>
+
+</div>
+
+<script>
+const BASE_URL = "http://localhost:8080";
+
+async function listCars() {
+    const response = await fetch(BASE_URL + "/cars");
+    const data = await response.json();
+    document.getElementById("carsResult").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+async function listCustomers() {
+    const response = await fetch(BASE_URL + "/customers");
+    const data = await response.json();
+    document.getElementById("customersResult").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+async function createRental() {
+    const carId = parseInt(document.getElementById("carId").value);
+    const customerId = parseInt(document.getElementById("customerId").value);
+    const rentalDays = parseInt(document.getElementById("rentalDays").value);
+
+    const response = await fetch(BASE_URL + "/rentals", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            carId,
+            customerId,
+            rentalDays
+        })
+    });
+
+    const data = await response.json();
+    document.getElementById("rentalResult").textContent =
+        JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>

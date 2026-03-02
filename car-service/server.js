@@ -4,17 +4,17 @@ const carRoutes = require('./routes/cars');
 
 const app = express();
 
-// 🔹 Environment variable (required by midterm)
+//  Environment variable (required by midterm)
 const PORT = process.env.PORT || 3001;
 
-// 🔹 Middleware
+//  Middleware
 app.use(express.json());
 app.use(logger);
 
-// 🔹 Mount routes
+//  Mount routes
 app.use('/cars', carRoutes);
 
-// 🔹 Root health check
+//  Root health check
 app.get('/health', (req, res) => {
   res.json({
     status: "UP",
@@ -22,7 +22,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 🔹 Start server
+//  Start server
 app.listen(PORT, () => {
   console.log(`Car Service running on port ${PORT}`);
 });

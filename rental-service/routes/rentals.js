@@ -5,14 +5,14 @@ const path = require('path');
 
 const router = express.Router();
 
-// // 🔹 Environment variables (required by midterm)
+// //  Environment variables (required by midterm)
 // const CAR_SERVICE_URL = process.env.CAR_SERVICE_URL;
 // const CUSTOMER_SERVICE_URL = process.env.CUSTOMER_SERVICE_URL;
 
 const CAR_SERVICE_URL = process.env.CAR_SERVICE_URL || "http://localhost:3001";
 const CUSTOMER_SERVICE_URL = process.env.CUSTOMER_SERVICE_URL || "http://localhost:3002";
 
-// 🔹 Initialize Firebase
+//  Initialize Firebase
 const serviceAccount = require(path.join(__dirname, '../serviceAccountKey.json'));
 
 admin.initializeApp({
@@ -21,7 +21,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// 🔹 POST /rentals
+//  POST /rentals
 router.post('/', async (req, res) => {
   const { carId, customerId, rentalDays } = req.body;
 
@@ -34,19 +34,19 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // 🔹 Validate customer exists
+    //  Validate customer exists
     const customerResponse = await axios.get(
       `${CUSTOMER_SERVICE_URL}/customers/${customerId}`
     );
 
-    // 🔹 Validate car exists
+    //  Validate car exists
     const carResponse = await axios.get(
       `${CAR_SERVICE_URL}/cars/${carId}`
     );
 
     const car = carResponse.data.data;
 
-    // 🔹 Check availability
+    //  Check availability
     if (!car.available) {
       return res.status(409).json({
         service: "rental-service",
@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    // 🔹 Save in Firestore
+    //  Save in Firestore
     await db.collection("rentals").add(rental);
 
     return res.status(201).json({
@@ -97,7 +97,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 🔹 Health endpoint
+//  Health endpoint
 router.get('/health', (req, res) => {
   res.json({
     status: "UP",
